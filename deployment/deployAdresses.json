@@ -1,0 +1,12 @@
+{
+  "moonbeam": {
+    "Comptroller": "0x169AA72E2FFc5eeAC8299fB56A0D1Cda35E9E975",
+    "SimplePriceOracle": "0x636afb7EF27f542e1a60Ba03128d9194FdEfDbcb",
+    "ExampleERC20InterestRateModel": "0x9BD057dB1400513854ced4cE60F88cd1B7C4482C",
+    "CCrosschainErc20": "0x79E78dfB089c045FaFa5840EeCFb6ff17655DB4D"
+  },
+  "polygon": {
+    "ExampleERC20Token": "0xe39e21d409c346857D788e3b0668d874Af73b393",
+    "CSatellite": "0x714e2D963bc3937363c8019c72C9793fecf4CA6D"
+  }
+}
