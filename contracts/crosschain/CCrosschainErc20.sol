@@ -5,6 +5,7 @@ import "@axelar-network/axelar-gmp-sdk-solidity/contracts/executable/AxelarExecu
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../compound/CToken.sol";
 import "./CCrosschainErc20Interface.sol";
+import { IAxelarGasService } from '@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol';
 
 interface CompLike {
     function delegate(address delegatee) external;
@@ -18,6 +19,7 @@ interface CompLike {
 contract CCrosschainErc20 is CToken, CCrosschainErc20Interface, AxelarExecutable {
     string chain;
     string underlyingSatellite;
+    IAxelarGasService public immutable gasService;
     bytes32 internal constant SELECTOR_MINT= keccak256('mint');
     bytes32 internal constant SELECTOR_REPAY_BORROW = keccak256('repayBorrow');
     bytes32 internal constant SELECTOR_REPAY_BORROW_BEHALF = keccak256('repayBorrowBehalf');
@@ -44,6 +46,7 @@ contract CCrosschainErc20 is CToken, CCrosschainErc20Interface, AxelarExecutable
      */
     constructor(
         address gateway_,
+        address gasReceiver_,
         string memory chain_,
         string memory underlyingSatellite_,
         ComptrollerInterface comptroller_,
@@ -62,6 +65,7 @@ contract CCrosschainErc20 is CToken, CCrosschainErc20Interface, AxelarExecutable
             symbol_,
             decimals_
         );
+        gasService = IAxelarGasService(gasReceiver_);
         chain = chain_;
         underlyingSatellite = underlyingSatellite_;
     }
@@ -231,8 +235,10 @@ contract CCrosschainErc20 is CToken, CCrosschainErc20Interface, AxelarExecutable
         address payable to,
         uint amount
     ) internal virtual override {
+        require(msg.value > 0, 'Gas payment is required');
         bytes memory params = abi.encode(to,amount);
         bytes memory payload = abi.encode('doTranferOut', params);
+        gasService.payNativeGasForContractCall{value: msg.value}(address(this), chain, underlyingSatellite, payload, msg.sender);
         gateway.callContract(chain, underlyingSatellite, payload);
     }
 

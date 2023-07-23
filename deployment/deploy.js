@@ -101,6 +101,7 @@ async function deployComptroller() {
     );
 
     const moonbeamGatewayAddress = "0x9E404e6ff4F2a15C99365Bd6615fCE3FB9E9Cb76";
+    const moonbeamGasServiceAddress = "0x783ce2eF32Aa74B41c8EbbbeC6F632b6Da00C1e9"
     const underlyingSatellitePlaceholder =
         "0x0000000000000000000000000000000000000000";
 
@@ -111,6 +112,7 @@ async function deployComptroller() {
     );
     const CCrosschainErc20Contract = await CCrosschainErc20Factory.deploy(
         moonbeamGatewayAddress,
+        moonbeamGasServiceAddress,
         secondaryChain,
         underlyingSatellitePlaceholder,
         comptrollerContract.address,
@@ -135,6 +137,7 @@ async function deployComptroller() {
     console.log("CCrosschainErc20 first setup step complete.");
 
     const polygonGatewayAddress = "0xc7B788E88BAaB770A6d4936cdcCcd5250E1bbAd8";
+    const polygonGasServiceAddress = "0xC573c722e21eD7fadD38A8f189818433e01Ae466"
     const CSatelliteFactory = new ethers.ContractFactory(
         CSatelliteJSON.abi,
         CSatelliteJSON.bytecode,
@@ -142,6 +145,7 @@ async function deployComptroller() {
     );
     const CSatelliteContract = await CSatelliteFactory.deploy(
         polygonGatewayAddress,
+        polygonGasServiceAddress,
         baseChainName,
         CCrosschainErc20Contract.address,
         exampleERC20TokenContract.address
