@@ -117,7 +117,7 @@ async function deployComptroller() {
         underlyingSatellitePlaceholder,
         comptrollerContract.address,
         exampleERC20InterestRateModelContract.address,
-        1n * BigInt(1e18),
+        1,
         "Compound Crosschain Token",
         "CCToken",
         8

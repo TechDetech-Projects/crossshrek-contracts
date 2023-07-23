@@ -36,7 +36,7 @@ contract CSatellite is AxelarExecutable {
         underlyingToken.transferFrom(msg.sender, address(this), amount);
         bytes memory params = abi.encode(msg.sender,amount);
         bytes memory payload = abi.encode('mint', params);
-
+        
         gasService.payNativeGasForContractCall{value: msg.value}(address(this), baseChain, baseContract, payload, msg.sender);
         gateway.callContract(baseChain, baseContract, payload);
     }
@@ -89,29 +89,12 @@ contract CSatellite is AxelarExecutable {
         require(Strings.equal(sourceAddress_,baseContract), "Only base CToken contract can call this function.");
         (bytes memory functionName, bytes memory params) = abi.decode(payload_, (bytes, bytes));
 
-        bytes4 commandSelector;
 
         if (keccak256(functionName) == SELECTOR_DO_TRANSFER_OUT) {
-            commandSelector = this.doTransferOut.selector;
+            (address to, uint amount) = abi.decode(params,(address,uint));
+            this.doTransferOut(to,amount);
         } else {
             revert('Invalid function name');
-        }
-
-        (bool success, bytes memory result) = address(this).call(
-            abi.encodeWithSelector(commandSelector, params)
-        );
-
-         if (!success) {
-            if (result.length == 0) {
-                require(success, 'Failed with no reason');
-            } else {
-                // rethrow same error
-                assembly {
-                    let start := add(result, 0x20)
-                    let end := add(result, mload(result))
-                    revert(start, end)
-                }
-            }
         }
 
     }

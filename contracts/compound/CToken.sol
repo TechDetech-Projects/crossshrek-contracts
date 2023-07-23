@@ -398,10 +398,10 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
     function mintFresh(address minter, uint mintAmount) internal {
         /* Fail if mint not allowed */
         uint allowed = comptroller.mintAllowed(address(this), minter, mintAmount);
+        
         if (allowed != 0) {
             revert MintComptrollerRejection(allowed);
         }
-
         /* Verify market's block number equals current block number */
         if (accrualBlockNumber != getBlockNumber()) {
             revert MintFreshnessCheck();
@@ -423,6 +423,8 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
          */
         uint actualMintAmount = doTransferIn(minter, mintAmount);
 
+
+
         /*
          * We get the current exchange rate and calculate the number of cTokens to be minted:
          *  mintTokens = actualMintAmount / exchangeRate
@@ -438,6 +440,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
          */
         totalSupply = totalSupply + mintTokens;
         accountTokens[minter] = accountTokens[minter] + mintTokens;
+
 
         /* We emit a Mint event, and a Transfer event */
         emit Mint(minter, actualMintAmount, mintTokens);

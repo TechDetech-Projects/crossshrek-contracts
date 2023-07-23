@@ -271,37 +271,23 @@ contract CCrosschainErc20 is CToken, CCrosschainErc20Interface, AxelarExecutable
         require(Strings.equal(sourceAddress_,underlyingSatellite), "Only underlying satellite contract can call this function.");
         (bytes memory functionName, bytes memory params) = abi.decode(payload_, (bytes, bytes));
 
-        bytes4 commandSelector;
-
         if (keccak256(functionName) == SELECTOR_MINT) {
-            commandSelector = this.mint.selector;
+            (address to,uint mintAmount) = abi.decode(params,(address,uint));
+            this.mint(to,mintAmount);
         } else if (keccak256(functionName) == SELECTOR_REPAY_BORROW){
-            commandSelector = this.repayBorrow.selector;
+            (address to, uint repayAmount) = abi.decode(params,(address,uint));
+            this.repayBorrow(to,repayAmount);
         }else if (keccak256(functionName) == SELECTOR_REPAY_BORROW_BEHALF){
-            commandSelector = this.repayBorrowBehalf.selector;
+            (address to,address borrower,uint repayAmount) = abi.decode(params,(address,address,uint));
+            this.repayBorrowBehalf(to,borrower,repayAmount);
         } else if (keccak256(functionName) == SELECTOR_ADD_RESERVES) {
-            commandSelector = this._addReserves.selector;
+            (uint amount) = abi.decode(params,(uint));
+            this._addReserves(amount);
         } else if (keccak256(functionName) == SELECTOR_UPDATE_TRANSFER_OUT) {
-            commandSelector = this.updateTransferOut.selector;
+            (uint amount) = abi.decode(params,(uint));
+            this.updateTransferOut(amount);
         } else {
             revert('Invalid function name');
-        }
-
-        (bool success, bytes memory result) = address(this).call(
-            abi.encodeWithSelector(commandSelector, params)
-        );
-
-         if (!success) {
-            if (result.length == 0) {
-                require(success, 'Failed with no reason');
-            } else {
-                // rethrow same error
-                assembly {
-                    let start := add(result, 0x20)
-                    let end := add(result, mload(result))
-                    revert(start, end)
-                }
-            }
         }
 
     }
